@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" style="
+    background-image: url('static/image.png');
+    background-repeat: no-repeat;
+    background-color: transparent;
+    background-attachment: fixed;
+    background-size:  cover;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI System</title>
+    <link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body style="background-color: inherit!important;">
+<h1 style="text-align: center; font-size: 40px;">Classification et recommandation des musiques RAP  </h1>
+<h3 style="text-align: center; font-size: 20px;">(Entre violence vulgarité misogynie incitation à la haine ou pas)</h3>
+<div class="content" style="background-color: inherit!important;">
+{% block content %}
+<form action="{{ url_for('handle_data') }}" method="post">
+    {% if label == False %}
+    <label for="Parole">Veuillez insérer vos paroles s'il vous plaît.!</label>
+    <textarea type="text" name="Parole" style="border-color: coral; border-radius:20px; margin-top: 20px;"></textarea>
+    <div style="margin-top: 7px;">
+        <label for="label" >Prédiction du dispositif créé par notre application au service de la protection de la jeunesse et des mineurs:</label>
+        <p>no Result</p>
+    </div>
+    <input type="submit" value="search" class="btn" style=" border-radius:20px; margin-top: 30px;">
+    {% else %}
+    <label for="Parole">Veuillez insérer vos paroles s'il vous plaît.!</label>
+    <textarea type="text" name="Parole" style="border-radius:20px; margin-top: 20px;"></textarea>
+    <div style="margin-top: 7px;">
+        <label for="label" >Prédiction du dispositif créé par notre application au service de la protection de la jeunesse et des mineurs:</label>
+       {%if status == False %}
+        <p style="color: #f11d0e; font-weight: bold;">{{text}}</p>
+        {%else%}
+        <p style="color: rgb(13, 134, 13); font-weight: bold;">{{text}}</p>
+        {%endif%}
+    </div>
+    <input type="submit" value="classifier" class="btn" style=" border-radius:20px; margin-top: 30px;">
+    {% endif %}
+</form>
+{% endblock %}
+</body>
+</div>
+</html>

@@ -1,0 +1,69 @@
+import pickle
+import pandas as pd
+import xlrd
+import numpy as np
+from nltk.tokenize import word_tokenize
+from nltk.stem.snowball import FrenchStemmer
+from sklearn.feature_extraction.text import CountVectorizer
+import nltk
+import json
+from sklearn.model_selection import cross_val_score, cross_val_predict
+from sklearn import model_selection
+stemmer= FrenchStemmer()
+#def red_excel(path):
+    ##Corpus = pd.read_excel("ParolesFinalNettoyer_derniereVersion.xlsx",encoding = 'utf-8') 
+    #Corpus = pd.read_excel(path) 
+    #del Corpus["ID"]
+    #return Corpus
+
+def read_stopWord(path):
+    stopWords=[]
+    #with open("stopwords.txt", "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
+        for i in f:
+            stopWords.append(i.strip('\n'))
+    return stopWords
+
+def bag_of_words(s, words, stopWords):
+    bag = [0 for _ in range(len(words))] # # création d'un vecteur de la taille de word == vocabulaire d'app
+    
+    tokenised_W = word_tokenize(s) # 
+    tokenised_W = [stemmer.stem(word.lower()) for word in tokenised_W if word not in stopWords]  ##stemmer, mettre en minuscule , enlever les stopW
+
+    for token in tokenised_W:  # pour chaque mot de tokenised_W, en se basant sur le dico initial comme reference
+        for index, w in enumerate(words):
+            if w == token:
+                bag[index] = 1 # mettre 0 si le mot est present
+
+    return np.array(bag) #
+
+# def preproccesing(excel_path, stopWords):
+#     Corpus = red_excel(excel_path)
+#     Corpus['PAROLES']= [word_tokenize(entry) for entry in Corpus['PAROLES']]
+#     for index,entry in enumerate(Corpus['PAROLES']): 
+#         final_words = []
+#         for word in entry:
+#             if word not in stopWords and word.isalpha():# si word n'est pas un stopW et est un alphabet
+#                 final_words.append(stemmer.stem(word)) # append -> ajouter
+#         # Creation d'un corpus constitué de toutes les paroles de la base de données processées pour le Machine Learning
+#         Corpus.loc[index,'text_final'] = str(" ".join(final_words))
+#     vect = CountVectorizer(binary = True, min_df = 10) # Sans min_df == 10, on a ~ 15500 mots Avec minçdf == 10, on a ~ 1500 mots
+#     Train_X, _, _, _ = model_selection.train_test_split(Corpus['text_final'],Corpus['LABEL'],test_size=0.25, random_state = 1, stratify = Corpus['LABEL'])
+#     vect.fit(Train_X)
+#     return vect.vocabulary_
+
+def get_vocabulaire(path):
+    with open(path, 'r') as fp:
+        voca = json.load(fp)
+        return voca
+
+def make_prediction(text):
+    stopWords = read_stopWord("stopwords.txt")
+    #voca = preproccesing("ParolesFinalNettoyer_derniereVersion.xlsx", stopWords)
+    voca= get_vocabulaire("vocabulary.json")
+    vector  = bag_of_words(text, voca, stopWords)
+    with open('classifier_SVM.pkl', 'rb') as f: #
+        clf = pickle.load(f)
+        pred = clf.predict([vector])
+        return pred
+

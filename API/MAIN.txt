@@ -1,0 +1,22 @@
+from flask import Flask, render_template, request, Response
+from service import *
+app = Flask(__name__)
+
+@app.route('/')
+@app.route('/index')
+def index():
+    return render_template("base.html")
+@app.route('/handle_data', methods=['POST'])
+def handle_data():
+    if request.method =='POST':
+        parole = request.form['Parole']
+        if parole:
+            pred = make_prediction(parole)
+            if pred[0] == 0:
+                return render_template("base.html" , label = True ,status = True,text = 'Adapté au jeune public' )
+            elif pred[0] == 1:
+                return render_template("base.html" , label = True, status =False, text = 'Non adapté au jeune public' )
+        return  render_template("base.html" , data = False)
+
+if __name__ == "__main__":
+    app.run(debug=True)
